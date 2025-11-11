@@ -1,0 +1,31 @@
+{
+  "name": "ajw-blog",
+  "private": true,
+  "description": "Personal blog and portfolio for Andrew J Wright - UX/Product Design Leader",
+  "version": "2.0.0",
+  "author": "Andrew J Wright <the.concept.blend@gmail.com>",
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "gray-matter": "^4.0.3",
+    "markdown-it": "^14.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.1.1"
+  },
+  "homepage": "https://ajw.design",
+  "keywords": [
+    "blog",
+    "portfolio",
+    "ux",
+    "design"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "node build.js && npm run copy-css",
+    "copy-css": "mkdir -p dist/css && cp public/css/main.css dist/css/",
+    "format": "prettier --write \"**/*.{js,json,md}\"",
+    "start": "npm run build && npm run serve",
+    "serve": "npx http-server dist -p 8000 -o",
+    "clean": "rm -rf dist"
+  }
+}

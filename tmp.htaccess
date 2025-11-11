@@ -1,0 +1,28 @@
+
+IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+
+RewriteEngine On
+
+# Redirect for the elimination of the blog listing page
+RedirectMatch 301 "^/blog/?$" "https://ajw.design/"
+
+# Redirect for moved blog articles
+RedirectMatch 301 "^/blog/([^\/]*)\.html$" "https://ajw.design/blog/$1/"
+
+# Redirect for new domain + HTTPS upgrade
+RewriteCond %{HTTP_HOST} ^(www\.)?firstworddesign\.com [NC]
+RewriteRule ^(.*)$ https://ajw.design/$1 [L,R=301,NE]
+
+# Redirect for HTTPS upgrade
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://ajw.design/$1 [L,R=301,NE]
+
+<Limit GET POST>
+order deny,allow
+deny from all
+allow from all
+</Limit>
+<Limit PUT DELETE>
+order deny,allow
+deny from all
+</Limit>
