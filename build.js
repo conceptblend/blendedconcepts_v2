@@ -137,9 +137,7 @@ function generateBio() {
     <p id="contact">
       <a href="https://ca.linkedin.com/in/wrightaj" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       &middot; <a href="https://www.slideshare.net/andr3wjwright" target="_blank" rel="noopener noreferrer">SlideShare</a>
-      &middot; <a href="https://medium.com/@andrewjwright/" target="_blank" rel="noopener noreferrer">Medium</a>
       &middot; <a href="https://x.com/andrewjwright" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
-      &middot; <a itemprop="email" href="mailto:the.concept.blend@gmail.com">Email</a>
     </p>
   </section>
   <p id="mission">
