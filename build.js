@@ -1,83 +1,84 @@
-const fs = require('fs-extra');
-const path = require('path');
-const matter = require('gray-matter');
-const markdownIt = require('markdown-it');
-const md = markdownIt({ html: true, linkify: true, typographer: true });
+const fs = require("fs-extra")
+const path = require("path")
+const matter = require("gray-matter")
+const markdownIt = require("markdown-it")
+const md = markdownIt({ html: true, linkify: true, typographer: true })
 
 // Directories
-const CONTENT_DIR = './content/blog';
-const OUTPUT_DIR = './dist';
-const ASSETS_DIR = './content/assets';
-const STATIC_DIR = './static';
+const CONTENT_DIR = "./content/blog"
+const OUTPUT_DIR = "./dist"
+const ASSETS_DIR = "./content/assets"
+const STATIC_DIR = "./static"
 
 // Site metadata
 const SITE = {
-  title: 'Andrew J Wright',
-  author: 'Andrew J Wright',
-  description: 'Andrew J Wright is a user experience design and product leader based in Calgary, Alberta, Canada.',
-  url: 'https://ajw.design',
-  twitter: 'andrewjwright'
-};
+  title: "Andrew J Wright",
+  author: "Andrew J Wright",
+  description:
+    "Andrew J Wright is a user experience design and product leader based in Calgary, Alberta, Canada.",
+  url: "https://ajw.design",
+  twitter: "andrewjwright",
+}
 
 // Read and parse all blog posts
 async function getPosts() {
-  const postDirs = await fs.readdir(CONTENT_DIR);
-  const posts = [];
+  const postDirs = await fs.readdir(CONTENT_DIR)
+  const posts = []
 
   for (const dir of postDirs) {
-    const postPath = path.join(CONTENT_DIR, dir);
-    const stat = await fs.stat(postPath);
+    const postPath = path.join(CONTENT_DIR, dir)
+    const stat = await fs.stat(postPath)
 
     if (stat.isDirectory()) {
-      const mdFiles = ['index.md', 'index.mdx'];
-      let content;
-      let mdFile;
+      const mdFiles = ["index.md", "index.mdx"]
+      let content
+      let mdFile
 
       for (const file of mdFiles) {
-        const filePath = path.join(postPath, file);
+        const filePath = path.join(postPath, file)
         if (await fs.pathExists(filePath)) {
-          content = await fs.readFile(filePath, 'utf8');
-          mdFile = file;
-          break;
+          content = await fs.readFile(filePath, "utf8")
+          mdFile = file
+          break
         }
       }
 
       if (content) {
-        const { data, content: markdown } = matter(content);
-        const html = md.render(markdown);
+        const { data, content: markdown } = matter(content)
+        const html = md.render(markdown)
 
         posts.push({
           slug: dir,
           title: data.title || dir,
-          description: data.description || '',
-          date: data.date || '',
+          description: data.description || "",
+          date: data.date || "",
           dateObj: data.date ? new Date(data.date) : new Date(),
           pinned: data.pinned || false,
-          imageURL: data.imageURL || '',
+          imageURL: data.imageURL || "",
           tags: data.tags || [],
-          editorsNote: data.editorsNote || '',
+          editorsNote: data.editorsNote || "",
           html,
           // Calculate reading time (rough estimate: 200 words per minute)
-          timeToRead: Math.ceil(markdown.split(/\s+/).length / 200)
-        });
+          timeToRead: Math.ceil(markdown.split(/\s+/).length / 200),
+        })
       }
     }
   }
 
   // Sort: pinned first, then by date (newest first)
   posts.sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    return b.dateObj - a.dateObj;
-  });
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+    return b.dateObj - a.dateObj
+  })
 
-  return posts;
+  return posts
 }
 
 // Generate HTML from template
-function layout(title, content, seoDescription = '', seoImage = '') {
-  const siteTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
-  const description = seoDescription || SITE.description;
+function layout(title, content, seoDescription = "", seoImage = "") {
+  const siteTitle = title === SITE.title ? title : `${title} | ${SITE.title}`
+  const description = seoDescription || SITE.description
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -91,14 +92,14 @@ function layout(title, content, seoDescription = '', seoImage = '') {
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${description}">
   <meta property="og:type" content="website">
-  ${seoImage ? `<meta property="og:image" content="${seoImage}">` : ''}
+  ${seoImage ? `<meta property="og:image" content="${seoImage}">` : ""}
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:creator" content="@${SITE.twitter}">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
-  ${seoImage ? `<meta name="twitter:image" content="${seoImage}">` : ''}
+  ${seoImage ? `<meta name="twitter:image" content="${seoImage}">` : ""}
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Patua+One&display=swap" rel="stylesheet">
@@ -109,19 +110,8 @@ function layout(title, content, seoDescription = '', seoImage = '') {
 
   <!-- Favicon -->
   <link rel="icon" href="/apple-touch-icon.png">
-
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-N8PJ4S');</script>
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N8PJ4S"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
   <div style="margin-left: auto; margin-right: auto; max-width: 600px; padding: 2rem;">
     ${content}
     <footer>
@@ -129,7 +119,7 @@ function layout(title, content, seoDescription = '', seoImage = '') {
     </footer>
   </div>
 </body>
-</html>`;
+</html>`
 }
 
 // Generate bio section
@@ -169,16 +159,19 @@ function generateBio() {
     <li><a href="https://www.cpr.ca/" target="_blank" rel="noopener noreferrer">Canadian Pacific (CP)</a></li>
   </ul>
   <hr>
-</header>`;
+</header>`
 }
 
 // Generate index page
 function generateIndex(posts) {
-  const postsHtml = posts.map(post => {
-    const pinnedClass = post.pinned ? ' class="pinned-post"' : '';
-    const pinnedLabel = post.pinned ? '<div><span role="img" aria-label="Pinned post" class="pinned-label">★</span></div>' : '';
+  const postsHtml = posts
+    .map((post) => {
+      const pinnedClass = post.pinned ? ' class="pinned-post"' : ""
+      const pinnedLabel = post.pinned
+        ? '<div><span role="img" aria-label="Pinned post" class="pinned-label">★</span></div>'
+        : ""
 
-    return `<article${pinnedClass}>
+      return `<article${pinnedClass}>
   <header>
     <h3 class="article-title"><a href="/blog/${post.slug}/">${post.title}</a></h3>
     ${pinnedLabel}
@@ -187,110 +180,115 @@ function generateIndex(posts) {
   <section>
     <p style="margin-top: 0.25rem; margin-bottom: 0.25rem;">${post.description}</p>
   </section>
-</article>`;
-  }).join('\n');
+</article>`
+    })
+    .join("\n")
 
   return layout(
-    'Product and User Experience Design Leader',
-    generateBio() + '<h2>Writings</h2>\n' + postsHtml
-  );
+    "Product and User Experience Design Leader",
+    generateBio() + "<h2>Writings</h2>\n" + postsHtml
+  )
 }
 
 // Generate blog post page
 function generatePost(post, prevPost, nextPost) {
   const navigation = `<nav>
   <ul style="display: flex; flex-wrap: wrap; justify-content: space-between; list-style: none; padding: 0;">
-    <li>${prevPost ? `<a href="/blog/${prevPost.slug}/" rel="prev">← ${prevPost.title}</a>` : ''}</li>
-    <li>${nextPost ? `<a href="/blog/${nextPost.slug}/" rel="next">${nextPost.title} →</a>` : ''}</li>
+    <li>${prevPost ? `<a href="/blog/${prevPost.slug}/" rel="prev">← ${prevPost.title}</a>` : ""}</li>
+    <li>${nextPost ? `<a href="/blog/${nextPost.slug}/" rel="next">${nextPost.title} →</a>` : ""}</li>
   </ul>
-</nav>`;
+</nav>`
 
   const content = `<h5 class="site-title"><a href="/">${SITE.title} &middot; Home</a></h5>
 <article>
   <header>
     <h1 class="article-title">${post.title}</h1>
     <small class="article-metadata">${post.timeToRead} min read &middot; ${formatDate(post.date)}</small>
-    ${post.description ? `<p class="article-description">${post.description}</p>` : ''}
+    ${post.description ? `<p class="article-description">${post.description}</p>` : ""}
   </header>
   <hr>
   ${post.html}
   <hr style="margin-bottom: 1rem;">
 </article>
-${navigation}`;
+${navigation}`
 
-  return layout(post.title, content, post.description, post.imageURL);
+  return layout(post.title, content, post.description, post.imageURL)
 }
 
 // Format date helper
 function formatDate(dateString) {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  if (!dateString) return ""
+  const date = new Date(dateString)
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
 }
 
 // Main build function
 async function build() {
-  console.log('🏗️  Building site...');
+  console.log("🏗️  Building site...")
 
   // Clean output directory
-  await fs.remove(OUTPUT_DIR);
-  await fs.ensureDir(OUTPUT_DIR);
+  await fs.remove(OUTPUT_DIR)
+  await fs.ensureDir(OUTPUT_DIR)
 
   // Get all posts
-  const posts = await getPosts();
-  console.log(`📝 Found ${posts.length} posts`);
+  const posts = await getPosts()
+  console.log(`📝 Found ${posts.length} posts`)
 
   // Generate index page
-  const indexHtml = generateIndex(posts);
-  await fs.writeFile(path.join(OUTPUT_DIR, 'index.html'), indexHtml);
-  console.log('✅ Generated index page');
+  const indexHtml = generateIndex(posts)
+  await fs.writeFile(path.join(OUTPUT_DIR, "index.html"), indexHtml)
+  console.log("✅ Generated index page")
 
   // Generate individual post pages
   for (let i = 0; i < posts.length; i++) {
-    const post = posts[i];
-    const prevPost = i < posts.length - 1 ? posts[i + 1] : null;
-    const nextPost = i > 0 ? posts[i - 1] : null;
+    const post = posts[i]
+    const prevPost = i < posts.length - 1 ? posts[i + 1] : null
+    const nextPost = i > 0 ? posts[i - 1] : null
 
-    const postHtml = generatePost(post, prevPost, nextPost);
-    const postDir = path.join(OUTPUT_DIR, 'blog', post.slug);
-    await fs.ensureDir(postDir);
-    await fs.writeFile(path.join(postDir, 'index.html'), postHtml);
+    const postHtml = generatePost(post, prevPost, nextPost)
+    const postDir = path.join(OUTPUT_DIR, "blog", post.slug)
+    await fs.ensureDir(postDir)
+    await fs.writeFile(path.join(postDir, "index.html"), postHtml)
 
     // Copy all images and other files from the blog post directory
-    const sourcePostDir = path.join(CONTENT_DIR, post.slug);
-    const files = await fs.readdir(sourcePostDir);
+    const sourcePostDir = path.join(CONTENT_DIR, post.slug)
+    const files = await fs.readdir(sourcePostDir)
 
     for (const file of files) {
       // Skip markdown files, only copy images and other assets
-      if (!file.endsWith('.md') && !file.endsWith('.mdx')) {
-        const sourceFile = path.join(sourcePostDir, file);
-        const destFile = path.join(postDir, file);
+      if (!file.endsWith(".md") && !file.endsWith(".mdx")) {
+        const sourceFile = path.join(sourcePostDir, file)
+        const destFile = path.join(postDir, file)
 
         // Check if it's a file (not a directory)
-        const stat = await fs.stat(sourceFile);
+        const stat = await fs.stat(sourceFile)
         if (stat.isFile()) {
-          await fs.copy(sourceFile, destFile);
+          await fs.copy(sourceFile, destFile)
         }
       }
     }
   }
-  console.log(`✅ Generated ${posts.length} blog post pages`);
+  console.log(`✅ Generated ${posts.length} blog post pages`)
 
   // Copy assets
-  await fs.copy(ASSETS_DIR, path.join(OUTPUT_DIR, 'assets'));
-  console.log('✅ Copied assets');
+  await fs.copy(ASSETS_DIR, path.join(OUTPUT_DIR, "assets"))
+  console.log("✅ Copied assets")
 
   // Copy static files
   if (await fs.pathExists(STATIC_DIR)) {
-    await fs.copy(STATIC_DIR, OUTPUT_DIR);
-    console.log('✅ Copied static files');
+    await fs.copy(STATIC_DIR, OUTPUT_DIR)
+    console.log("✅ Copied static files")
   }
 
-  console.log('✨ Build complete!');
+  console.log("✨ Build complete!")
 }
 
 // Run build
-build().catch(err => {
-  console.error('❌ Build failed:', err);
-  process.exit(1);
-});
+build().catch((err) => {
+  console.error("❌ Build failed:", err)
+  process.exit(1)
+})
