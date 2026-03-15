@@ -1,5 +1,5 @@
 ---
-title: "Agents and LLMs: Usefule References"
+title: "Agents and LLMs: Useful References"
 description: ""
 date: "2026-03-14"
 pinned: false
