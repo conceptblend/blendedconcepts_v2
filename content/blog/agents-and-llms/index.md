@@ -20,7 +20,7 @@ Snippet c/o source. All credit goes to original author.
 
 ## Boris Cherny's Workflow Orchestration file (maybe?!?)
 
-With all the engagement-bait people share these days.... [This one on ~~Twitter~~ X claims to describe the workflow orchestration used by Claude Code's creator, Boris Cherny](https://x.com/NainsiDwiv50980/status/2032835888070500801).
+With all the engagement-bait people share these days.... [This one on ~~Twitter~~ X claims to describe the workflow orchestration used by Claude Code's creator, Boris Cherny](https://x.com/NainsiDwiv50980/status/2032835888070500801). Not verified, just recorded for consideration.
 
 ```md
 ## Workflow Orchestration
